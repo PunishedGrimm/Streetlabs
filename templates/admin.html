@@ -247,131 +247,137 @@
 
                 <div class="admin-product-form-container">
 
-                    <form action="/adicionar" method="post">
-
+                    <form action="/adicionar" method="post" enctype="multipart/form-data">
                         <div class="add">
                             <h3>Adicionar um novo Produto</h3>
                         </div>
-                      <input type="text" placeholder="Insira o nome do produto" name="nome" class="box">
-                      <input type="text" placeholder="Insira a descrição" name="descricao" class="box">
-                      <input type="text" placeholder="Insira o valor" name="preco" class="box">
-                      <input type="text" placeholder="Insira a quantidade" name="quantidade" class="box">
-
-                      <div class="dropdown">
-                        <label for="categoria" class="dropbtn">Categoria:</label>
-                        <select id="categoria" name="categoria">
-                            <option value="camisas">Camisas</option>
-                            <option value="blusas">Blusas</option>
-                            <option value="saias_minissaia">Saias & Minissaia</option>
-                            <option value="calcas">Calças</option>
-                            <option value="tenis">Tênis</option>
-                            <option value="jaqueta">Jaqueta</option>
-                            <option value="macacao">Macacão</option>
-                            <option value="bone">Boné</option>
-                            <option value="sandalias">Sandálias</option>
-                            <option value="cargo_pants">Cargo Pants</option>
-                            <option value="joggers">Joggers</option>
-                            <option value="shorts">Shorts</option>
-                            <option value="sueter">Suéter</option>
-                            <option value="pijama">Pijama</option>
-                            <option value="long_sleeve">Long Sleeve</option>
-                        </select>
-                    </div>
-
-                    <div class="dropdown">
-                        <label for="tamanho" class="dropbtn">Selecione o Tamanho:</label>
-                        <select id="tamanho" name="tamanho">
-                            <option value="p">P</option>
-                            <option value="m">M</option>
-                            <option value="g">G</option>
-                            <option value="gg">GG</option>
-                            <option value="g1">G1</option>
-                            <option value="g2">G2</option>
-                            <option value="todos">Todos os Tamanhos</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Seleção de Tamanho para Tênis -->
-                    <div class="dropdown">
-                        <label for="tamanho-tenis" class="dropbtn">Selecione o Tamanho para Tênis:</label>
-                        <select id="tamanho-tenis" name="tamanho_tenis">
-                            <option value="37">37</option>
-                            <option value="38">38</option>
-                            <option value="39">39</option>
-                            <option value="40">40</option>
-                            <option value="41">41</option>
-                            <option value="42">42</option>
-                            <option value="43">43</option>
-                            <option value="44">44</option>
-                            <option value="todos">Todos os Tamanhos</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Seleção de Cor -->
-                    <div class="dropdown">
-                        <label for="cor" class="dropbtn">Selecione a Cor:</label>
-                        <select id="cor" name="cor">
-                            <option value="preto">Preto</option>
-                            <option value="branco">Branco</option>
-                            <option value="vermelho">Vermelho</option>
-                            <option value="rosa">Rosa</option>
-                            <option value="amarelo">Amarelo</option>
-                            <option value="roxo">Roxo</option>
-                            <option value="verde">Verde</option>
-                            <option value="azul">Azul</option>
-                            <option value="laranja">Laranja</option>
-                            <option value="todas">Todas as Cores</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Seleção de Estilo -->
-                    <div class="dropdown">
-                        <label for="estilo" class="dropbtn">Estilo:</label>
-                        <select id="estilo" name="estilo">
-                            <option value="casual">Casual</option>
-                            <option value="streetwear">Streetwear</option>
-                            <option value="fofo">Fofo</option>
-                            <option value="festa">Festa</option>
-                            <option value="elegante">Elegante</option>
-                        </select>
-                    </div>
-                      
-                      <input type="file" accept="image/png, image/jpeg, image/jpg" name="image" class="box">
-                      <input type="submit" class="btn" value="Adicionar Produto">
-                   </form>
-             
+                        <input type="text" placeholder="Insira o nome do produto" name="nome" class="box" required>
+                        <input type="text" placeholder="Insira a descrição" name="descricao" class="box" required>
+                        <input type="text" placeholder="Insira o valor" name="preco" class="box" required>
+                        <input type="text" placeholder="Insira a quantidade" name="quantidade" class="box" required>
+                
+                        <div class="dropdown">
+                            <label for="categoria" class="dropbtn">Categoria:</label>
+                            <select id="categoria" name="categoria" required>
+                                <option value="camisas">Camisas</option>
+                                <option value="blusas">Blusas</option>
+                                <option value="saias_minissaia">Saias & Minissaia</option>
+                                <option value="calcas">Calças</option>
+                                <option value="tenis">Tênis</option>
+                                <option value="jaqueta">Jaqueta</option>
+                                <option value="macacao">Macacão</option>
+                                <option value="bone">Boné</option>
+                                <option value="sandalias">Sandálias</option>
+                                <option value="cargo_pants">Cargo Pants</option>
+                                <option value="joggers">Joggers</option>
+                                <option value="shorts">Shorts</option>
+                                <option value="sueter">Suéter</option>
+                                <option value="pijama">Pijama</option>
+                                <option value="long_sleeve">Long Sleeve</option>
+                            </select>
+                        </div>
+                
+                        <div class="dropdown">
+                            <label for="tamanho" class="dropbtn">Selecione o Tamanho:</label>
+                            <select id="tamanho" name="tamanho" required>
+                                <option value="p">P</option>
+                                <option value="m">M</option>
+                                <option value="g">G</option>
+                                <option value="gg">GG</option>
+                                <option value="g1">G1</option>
+                                <option value="g2">G2</option>
+                                <option value="todos">Todos os Tamanhos</option>
+                            </select>
+                        </div>
+                
+                        <div class="dropdown">
+                            <label for="tamanho-tenis" class="dropbtn">Selecione o Tamanho para Tênis:</label>
+                            <select id="tamanho-tenis" name="tamanho_tenis">
+                                <option value="37">37</option>
+                                <option value="38">38</option>
+                                <option value="39">39</option>
+                                <option value="40">40</option>
+                                <option value="41">41</option>
+                                <option value="42">42</option>
+                                <option value="43">43</option>
+                                <option value="44">44</option>
+                                <option value="todos">Todos os Tamanhos</option>
+                            </select>
+                        </div>
+                
+                        <div class="dropdown">
+                            <label for="cor" class="dropbtn">Selecione a Cor:</label>
+                            <select id="cor" name="cor" required>
+                                <option value="preto">Preto</option>
+                                <option value="branco">Branco</option>
+                                <option value="vermelho">Vermelho</option>
+                                <option value="rosa">Rosa</option>
+                                <option value="amarelo">Amarelo</option>
+                                <option value="roxo">Roxo</option>
+                                <option value="verde">Verde</option>
+                                <option value="azul">Azul</option>
+                                <option value="laranja">Laranja</option>
+                                <option value="todas">Todas as Cores</option>
+                            </select>
+                        </div>
+                
+                        <div class="dropdown">
+                            <label for="estilo" class="dropbtn">Estilo:</label>
+                            <select id="estilo" name="estilo" required>
+                                <option value="casual">Casual</option>
+                                <option value="streetwear">Streetwear</option>
+                                <option value="fofo">Fofo</option>
+                                <option value="festa">Festa</option>
+                                <option value="elegante">Elegante</option>
+                            </select>
+                        </div>
+                
+                        <input type="file" accept="image/png, image/jpeg, image/jpg" name="image" class="box" required>
+                        <input type="submit" class="btn" value="Adicionar Produto">
+                    </form>
+                
                 </div>
                 
+                
                 <div class="product-display">
-                   <table class="product-display-table">
-                      <thead>
-                      <tr>
-                         <th>Imagem</th>
-                         <th>Nome</th>
-                         <th>Descrição</th>
-                         <th>Valor</th>
-                         <th>Estoque</th>
-                         <th>Tamanho</th>
-                         <th>Cor</th>
-                         <th>Ação</th>
-                      </tr>
-                      </thead>
-                      
-                      <tr>
-                        <td><img src="uploaded_img/<?php echo $row['image']; ?>" height="100" alt=""></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                           <a href="admin_update.php?edit=<?php echo $row['id']; ?>" class="btn"> <i class="fas fa-edit"></i> editar </a>
-                           <a href="admin_page.php?delete=<?php echo $row['id']; ?>" class="btn"> <i class="fas fa-trash"></i> deletar </a>
-                        </td>
-                     </tr>
-                   </table>
+                    <table class="product-display-table">
+                        <thead>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Estoque</th>
+                                <th>Tamanho</th>
+                                <th>Cor</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for produto in produtos %}
+                            <tr>
+                                <td><img src="{{ url_for('static', filename='uploads/' + produto[9]) }}" height="100" alt="Imagem do produto"></td>
+                                <td>{{ produto[1] }}</td> <!-- Nome -->
+                                <td>{{ produto[2] }}</td> <!-- Descrição -->
+                                <td>{{ produto[3] }}</td> <!-- Preço -->
+                                <td>{{ produto[4] }}</td> <!-- Quantidade -->
+                                <td>{{ produto[5] }}</td> <!-- Tamanho -->
+                                <td>{{ produto[7] }}</td> <!-- Cor -->
+                                <td>
+                                    <a href="/editar/{{ produto[0] }}" class="btn"> <i class="fas fa-edit"></i> Editar </a>
+                                    <a href="/deletar/{{ produto[0] }}" class="btn"> <i class="fas fa-trash"></i> Deletar </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8">Nenhum produto encontrado</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
+                
+                
              </div>
         </section>
     </main>

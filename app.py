@@ -11,16 +11,16 @@ app = Flask(__name__)
 
 app.secret_key = os.urandom(24)
 
-# Configurações de segurança e upload
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limite de 16MB para uploads
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-
 # Configuração do MySQL
 app.config['MYSQL_HOST'] = 'localhost'  # Endereço do MySQL no XAMPP
 app.config['MYSQL_USER'] = 'root'       # Usuário padrão
 app.config['MYSQL_PASSWORD'] = ''       # Senha (vazia por padrão)
 app.config['MYSQL_DB'] = 'streetlabs'    # Nome do banco de dados
+
+# Configuração de upload de arquivos
+app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
+
 
 mysql = MySQL(app)
 
@@ -110,137 +110,66 @@ def add_user():
     except Exception as e:
         return f"Erro ao registrar: {str(e)}", 500
     
-#Upload de Produtos
-# Configuração de log
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Funções auxiliares
-def allowed_file(filename):
-    """Verifica se a extensão do arquivo é permitida."""
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def validar_dados_produto(dados):
-    """
-    Valida os dados do produto antes de inserir no banco de dados.
-    Retorna uma lista de erros, se houver.
-    """
-    erros = []
-
-    # Validação de nome
-    if not dados['nome'] or len(dados['nome']) < 2:
-        erros.append("Nome do produto deve ter pelo menos 2 caracteres")
-
-    # Validação de descrição
-    if not dados['descricao']:
-        erros.append("Descrição do produto é obrigatória")
-
-    # Validação de preço
-    try:
-        preco = Decimal(dados['preco'].replace(',', '.'))
-        if preco <= 0:
-            erros.append("Preço deve ser maior que zero")
-    except (InvalidOperation, ValueError):
-        erros.append("Preço inválido")
-
-    # Validação de quantidade
-    try:
-        quantidade = int(dados['quantidade'])
-        if quantidade < 0:
-            erros.append("Quantidade não pode ser negativa")
-    except ValueError:
-        erros.append("Quantidade inválida")
-
-    # Validação de categoria
-    categorias_validas = [
-        'camisas', 'blusas', 'saias_minissaia', 'calcas', 'tenis', 
-        'jaqueta', 'macacao', 'bone', 'sandalias', 'cargo_pants', 
-        'joggers', 'shorts', 'sueter', 'pijama', 'long_sleeve'
-    ]
-    if dados['categoria'] not in categorias_validas:
-        erros.append("Categoria inválida")
-
-    return erros
-
-@app.route('/adicionar', methods=['POST'])
+#Upload Produtos
+@app.route('/adicionar', methods=['GET', 'POST'])
 def adicionar_produto():
-    try:
-        # Criar pasta de uploads se não existir
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-        # Captura dados do formulário
-        dados_produto = {
-            'nome': request.form.get('nome', '').strip(),
-            'descricao': request.form.get('descricao', '').strip(),
-            'preco': request.form.get('preco', '0').strip(),
-            'quantidade': request.form.get('quantidade', '0').strip(),
-            'categoria': request.form.get('categoria', ''),
-            'tamanho': request.form.get('tamanho', '').strip(),
-            'tamanho_tenis': request.form.get('tamanho_tenis', '').strip(),
-            'cor': request.form.get('cor', '').strip(),
-            'estilo': request.form.get('estilo', '').strip()
-        }
-
-        # Validação dos dados
-        erros_validacao = validar_dados_produto(dados_produto)
-        if erros_validacao:
-            for erro in erros_validacao:
-                flash(erro, 'danger')
-            return redirect('/adm')
+    if request.method == 'POST':
+        nome = request.form['nome']
+        descricao = request.form['descricao']
+        preco = request.form['preco']
+        quantidade = request.form['quantidade']
+        categoria = request.form['categoria']
+        tamanho = request.form['tamanho']
+        tamanho_tenis = request.form['tamanho_tenis']
+        cor = request.form['cor']
+        estilo = request.form['estilo']
         
+        # Upload da imagem
+        if 'image' not in request.files:
+            flash('Nenhuma imagem foi enviada!')
+            return redirect(request.url)
+        
+        imagem = request.files['image']
+        if imagem.filename == '':
+            flash('Nenhuma imagem selecionada!')
+            return redirect(request.url)
+        
+        if imagem:
+            filename = secure_filename(imagem.filename)
+            imagem_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            imagem.save(imagem_path)
+            
+            # Salvar no banco de dados
+            try:
+                cursor = mysql.connection.cursor()
+                cursor.execute("""
+                    INSERT INTO produtos 
+                    (nome, descricao, preco, quantidade, categoria, tamanho, tamanho_tenis, cor, estilo, imagem) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (nome, descricao, preco, quantidade, categoria, tamanho, tamanho_tenis, cor, estilo, filename))
+                mysql.connection.commit()
+                cursor.close()
+                flash('Produto adicionado com sucesso!')
+                return redirect('/adm')
+            except Exception as e:
+                flash(f'Erro ao adicionar produto: {str(e)}')
+                return redirect(request.url)
+    return render_template('admin.html')
 
-        # Tratamento de imagem
-        imagem_path = app.config['UPLOAD_FOLDER'] = 'static/uploads'
-        if 'image' in request.files:
-            imagem = request.files['image']
-            if imagem and imagem.filename != '':
-                if allowed_file(imagem.filename):
-                    filename = secure_filename(imagem.filename)
-                    imagem_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                    imagem.save(imagem_path)
-                    # Salva apenas o nome do arquivo no banco
-                    imagem_path = filename
-                else:
-                    flash('Tipo de arquivo de imagem não permitido', 'danger')
-                    return redirect('/adm')
+@app.route('/admin', methods=['GET'])
+def admin_page():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM produtos")  # Certifique-se de que esta consulta está correta
+    produtos = cursor.fetchall()  # Recupera todos os produtos do banco de dados
+    cursor.close()
 
-        # Preparar dados para inserção
-        cursor = mysql.connection.cursor()
-        cursor.execute("""
-            INSERT INTO produtos 
-            (nome, descricao, preco, quantidade, categoria, tamanho, 
-            tamanho_tenis, cor, estilo, imagem) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (
-            dados_produto['nome'], 
-            dados_produto['descricao'], 
-            Decimal(dados_produto['preco'].replace(',', '.')), 
-            int(dados_produto['quantidade']), 
-            dados_produto['categoria'], 
-            dados_produto['tamanho'], 
-            dados_produto['tamanho_tenis'], 
-            dados_produto['cor'], 
-            dados_produto['estilo'], 
-            imagem_path
-        ))
+    # Imprima os produtos no console para verificar
+    if not produtos:
+        print("Nenhum produto encontrado.")
+    else:
+        print(f"Produtos recuperados: {produtos}")
 
-        mysql.connection.commit()
-        cursor.close()
-
-        # Log de sucesso
-        logger.info(f"Produto {dados_produto['nome']} adicionado com sucesso")
-        flash('Produto adicionado com sucesso!', 'success')
-        return redirect('/adm')
-
-    except RequestEntityTooLarge:
-        flash('Arquivo de imagem muito grande. Limite máximo: 16MB', 'danger')
-        return redirect('/adm')
-    except Exception as e:
-        # Log do erro para depuração
-        logger.error(f"Erro ao adicionar produto: {e}", exc_info=True)
-        flash(f'Erro ao adicionar produto: {str(e)}', 'danger')
-        mysql.connection.rollback()
-        return redirect('/adm')
+    return render_template('admin_page.html', produtos=produtos)
 
 
 if __name__ == '__main__':
