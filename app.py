@@ -1,11 +1,12 @@
 import os
 import logging
 from werkzeug.utils import secure_filename
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
 from flask_sqlalchemy import SQLAlchemy
 from decimal import Decimal, InvalidOperation
 from werkzeug.exceptions import RequestEntityTooLarge
+
 
 app = Flask(__name__)
 
@@ -28,6 +29,26 @@ mysql = MySQL(app)
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/autenticacao', methods=['POST'])
+def autenticacao():
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
+        username = request.form['username']
+        password = request.form['password']
+
+        cursor = cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM registro WHERE usuario = %s', (username,))
+        user = cursor.fetchone()
+
+        if user and user[4] == password:
+            session['loggedin'] = True
+            session['id'] = user[0]
+            session['role'] = user[9]
+            session['username'] = user[3]
+            return redirect(url_for('index'))
+        else:
+            flash('Usuário ou senha incorretos!', 'danger')
+            return redirect(url_for('index'))
 
 @app.route('/shop')
 def shop():
@@ -69,10 +90,6 @@ def favorito():
 def registro():
     return render_template('registro.html')
 
-@app.route('/adm')
-def admin():
-    return render_template('admin.html')
-
 #registro de usuário
 @app.route('/registro', methods=['POST'])
 def add_user():
@@ -85,6 +102,7 @@ def add_user():
     conf_email = request.form.get('conf_email')
     endereco = request.form.get('endereco')
     termos = request.form.get('termos')
+    role = "2"
 
     # Validações
     if not nome or not sobrenome or not usuario or not senha or not conf_senha or not email or not conf_email or not endereco:
@@ -102,11 +120,11 @@ def add_user():
     # Inserção no banco de dados
     try:
         cursor = mysql.connection.cursor()
-        cursor.execute("INSERT INTO registro (nome, sobrenome, usuario, senha, email, endereco) VALUES (%s, %s, %s, %s, %s, %s)", 
-                       (nome, sobrenome, usuario, senha, email, endereco))
+        cursor.execute("INSERT INTO registro (nome, sobrenome, usuario, senha, email, endereco, role_user) VALUES (%s, %s, %s, %s, %s, %s, %s)", 
+                       (nome, sobrenome, usuario, senha, email, endereco, role))
         mysql.connection.commit()
         cursor.close()
-        return render_template('registro.html', mensagem="Cadastro realizado com sucesso!")
+        return redirect('registro.html', mensagem="Cadastro realizado com sucesso!")
     except Exception as e:
         return f"Erro ao registrar: {str(e)}", 500
     
@@ -156,20 +174,30 @@ def adicionar_produto():
                 return redirect(request.url)
     return render_template('admin.html')
 
-@app.route('/admin', methods=['GET'])
+#lista produtos
+@app.route('/adm')
 def admin_page():
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM produtos")  # Certifique-se de que esta consulta está correta
-    produtos = cursor.fetchall()  # Recupera todos os produtos do banco de dados
-    cursor.close()
+    if 'role' not in session or session['role'] == 2:
+        return redirect(url_for('index'))
+    if session['role'] == 1:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM produtos")  # Certifique-se de que esta consulta está correta
+        produtos = cursor.fetchall()  # Recupera todos os produtos do banco de dados
+        cursor.close()
 
-    # Imprima os produtos no console para verificar
-    if not produtos:
-        print("Nenhum produto encontrado.")
-    else:
-        print(f"Produtos recuperados: {produtos}")
+        # Imprima os produtos no console para verificar
+        if not produtos:
+            print("Nenhum produto encontrado.")
+        else:
+            print(f"Produtos recuperados: {produtos}")
 
-    return render_template('admin_page.html', produtos=produtos)
+        return render_template('admin.html', produtos=produtos)
+    
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('Você foi deslogado com sucesso.', 'success')
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
