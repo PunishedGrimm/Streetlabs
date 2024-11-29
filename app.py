@@ -30,6 +30,8 @@ mysql = MySQL(app)
 def index():
     return render_template('index.html')
 
+
+
 @app.route('/autenticacao', methods=['POST'])
 def autenticacao():
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
@@ -45,6 +47,8 @@ def autenticacao():
             session['id'] = user[0]
             session['role'] = user[9]
             session['username'] = user[3]
+            session['name'] = f"{user[1]} {user[2]}"
+            session['email'] = user[6]
             return redirect(url_for('index'))
         else:
             flash('Usuário ou senha incorretos!', 'danger')
@@ -56,7 +60,10 @@ def shop():
     
 @app.route('/cart')
 def cart():
-    return render_template('cart.html')
+    if 'role' not in session:
+        return redirect(url_for('index'))
+    else:
+        return render_template('cart.html')
 
 @app.route('/aboutus')
 def aboutus():
@@ -76,7 +83,10 @@ def procura():
 
 @app.route('/profile')
 def profile():
-    return render_template('profile.html')
+    if 'role' not in session:
+        return redirect(url_for('index'))
+    else:
+        return render_template('profile.html')
 
 @app.route('/meuspedidos')
 def meuspedidos():
@@ -192,12 +202,26 @@ def admin_page():
             print(f"Produtos recuperados: {produtos}")
 
         return render_template('admin.html', produtos=produtos)
-    
+
+#Logout do usuario   
 @app.route('/logout')
 def logout():
     session.clear()
     flash('Você foi deslogado com sucesso.', 'success')
     return redirect(url_for('index'))
+
+# Rota para deletar produto
+@app.route('/deletar/<int:id_produto>', methods=['POST'])
+def deletar_produto(id_produto):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM produtos WHERE id_produto = %s", (id_produto,))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Produto deletado com sucesso!', 'success')
+    except Exception as e:
+        flash(f'Erro ao deletar o produto: {str(e)}', 'danger')
+    return redirect(url_for('admin_page'))
 
 
 if __name__ == '__main__':
