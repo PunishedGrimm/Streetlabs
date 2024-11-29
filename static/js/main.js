@@ -113,11 +113,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const icon = document.getElementById("moon");
   const body = document.body;
 
-
-  const moonImg = "{{ url_for('static', filename='/img/moon.png') }}";
-  const sunImg = "{{ url_for('static', filename='/img/sun.png') }}";
-
-
   if (localStorage.getItem("dark-mode") === "enabled") {
       body.classList.add("dark-mode");
       icon.src = sunImg;

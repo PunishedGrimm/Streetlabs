@@ -580,6 +580,14 @@ input {
     margin-bottom: var(--mb-0-5);
 }
 
+.product-img {
+    max-width: 100%; /* Ajusta a largura ao tamanho do contêiner */
+    height: auto;    /* Mantém a proporção da imagem */
+    max-height: 150px; /* Limita a altura máxima */
+    object-fit: cover; /* Ajusta como a imagem é cortada dentro do espaço */
+    border-radius: 8px; /* (Opcional) Bordas arredondadas */
+}
+
 .order__product__img {
     width: 50px;
     height: 50px;

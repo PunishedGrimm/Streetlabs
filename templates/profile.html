@@ -253,20 +253,20 @@
 
                 <div class="profile__box">
                     <img src="{{ url_for('static', filename='/img/profile-pic.png') }}" class="profile-pic">
-                    <h3 class="breadcrumb__subtitle">Olá, Carlos Jose Amaral
+                    <h3 class="breadcrumb__subtitle">Olá, {{ session['username'] }}
                 </div>  
 
                 <form action="" class="register__form grid">
                         <div class="info">
                             <h2 class="info__text">Informações Pessoais</h2>
-                            <p>Nome: Carlos Jose Amaral</p>
+                            <p>Nome: {{ session['name'] }}</p>
                             <p>Idade: 20 anos</p>
                             <p>Sexo: Masculino</p>
                         </div>
                         
                         <div class="profile__contact">
                             <h2 class="info__text">Informações de Contato</h2>
-                            <p>Email: carlos@example.com</p>
+                            <p>Email: {{ session['email'] }}</p>
                             <p>Telefone: (123) 456-7890</p>
                             <p>Endereço: Rua ABC, 123 - Cidade C, CC.</p>
                         </div>

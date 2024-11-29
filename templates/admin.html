@@ -359,7 +359,8 @@
                         <tbody>
                             {% for produto in produtos %}
                             <tr>
-                                <td> <img src="{{ url_for('static', filename='uploads/' ~ produto[9]) }}" height="100" alt="Imagem do produto"></td>
+                                
+                                <td><img src="{{ url_for('static', filename='uploads/' + produto[10]) }}" height="100" alt="Imagem do produto" class="product-img"></td>
                                 <td>{{ produto[1] }}</td> <!-- Nome -->
                                 <td>{{ produto[2] }}</td> <!-- Descrição -->
                                 <td>{{ produto[3] }}</td> <!-- Preço -->
@@ -368,7 +369,11 @@
                                 <td>{{ produto[7] }}</td> <!-- Cor -->
                                 <td>
                                     <a href="/editar/{{ produto[0] }}" class="btn"> <i class="fas fa-edit"></i> Editar </a>
-                                    <a href="/deletar/{{ produto[0] }}" class="btn"> <i class="fas fa-trash"></i> Deletar </a>
+                                    <form action="/deletar/{{ produto[0] }}" method="POST" style="display:inline;">
+                                        <button class="btn"> <i class="fas fa-trash"></i> Deletar </button>
+                                    </form>
+                                    
+
                                 </td>
                             </tr>
                             {% else %}
